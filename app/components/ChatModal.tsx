@@ -1,4 +1,3 @@
-cat > app/components/ChatModal.tsx <<'EOF'
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -72,4 +71,3 @@ export default function ChatModal({
     </div>
   );
 }
-EOF
