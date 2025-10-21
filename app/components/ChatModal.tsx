@@ -1,87 +1,101 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { Plane, CreditCard, User, Bot } from "lucide-react";
-import ChatModal from "./components/ChatModal";
+import { useEffect, useRef, useState } from "react";
 
-export default function Page() {
-  const [open, setOpen] = useState(false);
-  const [seed, setSeed] = useState<string | undefined>(undefined);
-  const tap = (intent: string) => { setSeed(intent); setOpen(true); };
+type Msg = { role: "assistant" | "user"; text: string };
+
+export default function ChatModal({
+  open,
+  onClose,
+  seed,                    // <= new: optional seed message like "Generate QR"
+}: {
+  open: boolean;
+  onClose: () => void;
+  seed?: string;
+}) {
+  const [messages, setMessages] = useState<Msg[]>([
+    { role: "assistant", text: "Hi, I'm your EAN AI Concierge 🤖 — I can arrange transport, generate your access QR, or share your latest invoice. What do you need?" }
+  ]);
+  const [input, setInput] = useState("");
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  // --- simple intent router (same logic you had before) ---
+  const respond = (text: string): string => {
+    const t = text.toLowerCase();
+    if (t.includes("pickup") || t.includes("chauffeur") || t.includes("transport")) {
+      return "✅ Chauffeur requested. Driver ETA will be shared 30 mins before arrival. Would you like bottled water and Wi-Fi onboard?";
+    }
+    if (t.includes("invoice") || t.includes("pay") || t.includes("payment")) {
+      return "💳 Your latest invoice (INV-22194) is ₦18,500,000. A Paystack link has been sent to your email. Need me to resend here?";
+    }
+    if (t.includes("access") || t.includes("qr") || t.includes("lounge")) {
+      return "🪪 Smart Journey ID confirmed: #EANJI-0241. A time-bound QR has been generated for lounge access. Shall I share it now?";
+    }
+    if (t.includes("catering") || t.includes("meal") || t.includes("food")) {
+      return "🍽️ Catering preferences updated to: steak (medium), sparkling water, and fruit platter. Anything else for the cabin?";
+    }
+    if (t.includes("status") || t.includes("turnaround") || t.includes("eta")) {
+      return "🛫 Turnaround is on track. Fueling complete; catering in prep; boarding at 15:35. Would you like push notifications?";
+    }
+    return "I can help with pickups, access QR, invoices, lounge bookings, or flight status. What would you like me to do?";
+  };
+
+  const send = (text: string) => {
+    const clean = text.trim();
+    if (!clean) return;
+    setMessages(prev => [...prev, { role: "user", text: clean }, { role: "assistant", text: respond(clean) }]);
+  };
+
+  // auto-seed when opened with a preset intent
+  useEffect(() => {
+    if (open && seed) {
+      // tiny delay so users see the assistant “typing” feel
+      const id = setTimeout(() => send(seed), 250);
+      return () => clearTimeout(id);
+    }
+  }, [open, seed]);
+
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [messages, open]);
+
+  if (!open) return null;
+
+  const onKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      send(input);
+      setInput("");
+    }
+  };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
-      <header className="flex justify-between items-center px-10 py-6 bg-white shadow-sm sticky top-0 z-50">
-        <h1 className="text-2xl font-bold text-brandBlue">EAN Aviation</h1>
-        <nav className="space-x-6 text-gray-600">
-          <Link href="/">Home</Link>
-          <a>FBO Services</a>
-          <a>Charter</a>
-          <a>Leasing</a>
-          <a>Contact</a>
-        </nav>
-        <Link href="/booking" className="bg-brandBlue text-white px-4 py-2 rounded-md">Book a Flight</Link>
-      </header>
-
-      <section className="flex flex-col items-center text-center py-24 px-8 bg-[url('https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=1400&q=60')] bg-cover bg-center text-white">
-        <div className="bg-black/40 p-10 rounded-2xl">
-          <h2 className="text-4xl font-bold mb-4">Your Journey, Elevated</h2>
-          <p className="text-lg mb-8 max-w-2xl mx-auto">
-            Experience the future of business aviation with EAN’s Smart Journey ID — powered by Descasio & AWS.
-          </p>
-          <Link href="/booking" className="inline-block bg-brandAmber text-black font-semibold px-8 py-4 rounded-full hover:opacity-90">
-            Start Your Journey
-          </Link>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-3 border-b">
+          <div className="font-semibold">AI Concierge (Demo)</div>
+          <button onClick={onClose} className="text-sm text-gray-500 hover:text-gray-700">Close ✖</button>
         </div>
-      </section>
-
-      <section className="py-16 bg-white">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-6 px-8">
-          {[
-            { Icon: Plane, title: "Upcoming Trip", detail: "Lagos → London | 23 Oct 2025" },
-            { Icon: CreditCard, title: "Payment Status", detail: "Paid | ₦18,500,000 via Paystack" },
-            { Icon: User, title: "Smart Journey ID", detail: "#EANJI-0241 | QR Generated" },
-          ].map((item, i) => (
-            <motion.div key={i} whileHover={{ y: -4, scale: 1.02 }}>
-              <div className="bg-white rounded-xl shadow p-6 text-center border">
-                <item.Icon className="mx-auto mb-3 text-brandBlue" size={36} />
-                <h4 className="font-semibold text-brandBlue">{item.title}</h4>
-                <p className="text-sm text-gray-600">{item.detail}</p>
+        <div ref={scrollRef} className="h-80 overflow-y-auto px-5 py-4 space-y-3">
+          {messages.map((m, i) => (
+            <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+              <div className={`${m.role === "user" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-800"} px-3 py-2 rounded-xl max-w-[80%]`}>
+                {m.text}
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
-      </section>
-
-      <section className="py-16 bg-blue-50">
-        <div className="max-w-5xl mx-auto text-center">
-          <div className="inline-block bg-white rounded-2xl p-8 shadow-md">
-            <Bot className="text-brandBlue mx-auto mb-3" size={36} />
-            <h4 className="text-brandBlue font-semibold mb-2">AI Concierge Assistant</h4>
-            <p className="text-gray-600 text-sm mb-4">
-              One-tap actions to demonstrate the Smart Journey.
-            </p>
-            <div className="flex flex-wrap gap-2 justify-center mb-4">
-              <button onClick={() => tap("Generate lounge access QR")} className="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">Generate QR</button>
-              <button onClick={() => tap("Request chauffeur pickup")} className="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">Request Chauffeur</button>
-              <button onClick={() => tap("Send invoice payment link")} className="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">Send Invoice Link</button>
-              <button onClick={() => tap("Update catering preferences to steak medium and sparkling water")} className="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">Catering: Steak</button>
-              <Link href="/booking" className="px-3 py-1 rounded-full text-sm bg-amber-200 text-amber-900">Open Dashboard</Link>
-            </div>
-            <button onClick={() => setOpen(true)} className="bg-brandBlue text-white px-6 py-2 rounded-full inline-block">
-              Chat with Concierge
-            </button>
-          </div>
+        <div className="flex gap-2 p-4 border-t">
+          <input
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={onKey}
+            placeholder="Type a message…"
+            className="flex-1 border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <button onClick={() => { send(input); setInput(""); }} className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2">Send</button>
         </div>
-      </section>
-
-      <ChatModal open={open} onClose={() => setOpen(false)} seed={seed} />
-
-      <footer className="bg-brandBlue text-white py-10 text-center text-sm">
-        <p>© 2025 EAN Aviation | Powered by Descasio + AWS | Smart Journey Experience</p>
-      </footer>
-    </motion.div>
+        <div className="px-5 pb-4 text-xs text-gray-500">Responses are simulated for demo purposes.</div>
+      </div>
+    </div>
   );
 }

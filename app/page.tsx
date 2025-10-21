@@ -1,21 +1,10 @@
-cat > app/page.tsx <<'EOF'
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Plane, CreditCard, User, Bot } from "lucide-react";
-import ChatModal from "./components/ChatModal";
 
 export default function Page() {
-  const [open, setOpen] = useState(false);
-  const [seed, setSeed] = useState<string | undefined>(undefined);
-
-  const tap = (intent: string) => {
-    setSeed(intent);
-    setOpen(true);
-  };
-
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
       <header className="flex justify-between items-center px-10 py-6 bg-white shadow-sm sticky top-0 z-50">
@@ -37,7 +26,7 @@ export default function Page() {
             Experience the future of business aviation with EAN’s Smart Journey ID — powered by Descasio & AWS.
           </p>
           <Link href="/booking" className="inline-block bg-brandAmber text-black font-semibold px-8 py-4 rounded-full hover:opacity-90">
-            Start Your Journey
+            Open Booking Dashboard
           </Link>
         </div>
       </section>
@@ -49,13 +38,11 @@ export default function Page() {
             { Icon: CreditCard, title: "Payment Status", detail: "Paid | ₦18,500,000 via Paystack" },
             { Icon: User, title: "Smart Journey ID", detail: "#EANJI-0241 | QR Generated" },
           ].map((item, i) => (
-            <motion.div key={i} whileHover={{ y: -4, scale: 1.02 }}>
-              <div className="bg-white rounded-xl shadow p-6 text-center border">
-                <item.Icon className="mx-auto mb-3 text-brandBlue" size={36} />
-                <h4 className="font-semibold text-brandBlue">{item.title}</h4>
-                <p className="text-sm text-gray-600">{item.detail}</p>
-              </div>
-            </motion.div>
+            <div key={i} className="bg-white rounded-xl shadow p-6 text-center border">
+              <item.Icon className="mx-auto mb-3 text-brandBlue" size={36} />
+              <h4 className="font-semibold text-brandBlue">{item.title}</h4>
+              <p className="text-sm text-gray-600">{item.detail}</p>
+            </div>
           ))}
         </div>
       </section>
@@ -66,30 +53,14 @@ export default function Page() {
             <Bot className="text-brandBlue mx-auto mb-3" size={36} />
             <h4 className="text-brandBlue font-semibold mb-2">AI Concierge Assistant</h4>
             <p className="text-gray-600 text-sm mb-4">
-              One-tap actions to demonstrate the Smart Journey.
+              Try the end-to-end flow on the Booking Dashboard.
             </p>
-
-            {/* Quick action chips */}
-            <div className="flex flex-wrap gap-2 justify-center mb-4">
-              <button onClick={() => tap("Generate lounge access QR")} className="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">Generate QR</button>
-              <button onClick={() => tap("Request chauffeur pickup")} className="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">Request Chauffeur</button>
-              <button onClick={() => tap("Send invoice payment link")} className="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">Send Invoice Link</button>
-              <button onClick={() => tap("Update catering preferences to steak medium and sparkling water")} className="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">Catering: Steak</button>
-              <Link href="/booking" className="px-3 py-1 rounded-full text-sm bg-amber-200 text-amber-900">Open Dashboard</Link>
-            </div>
-
-            <button
-              onClick={() => setOpen(true)}
-              className="bg-brandBlue text-white px-6 py-2 rounded-full inline-block"
-            >
-              Chat with Concierge
-            </button>
+            <Link href="/booking" className="bg-brandBlue text-white px-6 py-2 rounded-full inline-block">
+              Go to Booking
+            </Link>
           </div>
         </div>
       </section>
-
-      {/* Concierge modal */}
-      <ChatModal open={open} onClose={() => setOpen(false)} seed={seed} />
 
       <footer className="bg-brandBlue text-white py-10 text-center text-sm">
         <p>© 2025 EAN Aviation | Powered by Descasio + AWS | Smart Journey Experience</p>
