@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import QRModal from "../components/QRModal";
-import FaceIdModal from "../components/FaceIdModal";
 
 export default function Booking() {
   const [openQR, setOpenQR] = useState(false);
@@ -52,8 +50,6 @@ export default function Booking() {
         </div>
 
         {/* Modals */}
-        <QRModal open={openQR} onClose={() => setOpenQR(false)} sji={sji} />
-        <FaceIdModal open={openFace} onClose={() => setOpenFace(false)} />
       </main>
 
       <footer className="bg-blue-900 text-white py-10 text-center text-sm">
