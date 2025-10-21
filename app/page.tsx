@@ -1,3 +1,4 @@
+cat > app/page.tsx <<'EOF'
 "use client";
 
 import { useState } from "react";
@@ -7,14 +8,9 @@ import { Plane, CreditCard, User, Bot } from "lucide-react";
 import ChatModal from "./components/ChatModal";
 
 export default function Page() {
-  // state for chat modal + seeded intent
   const [open, setOpen] = useState(false);
   const [seed, setSeed] = useState<string | undefined>(undefined);
-
-  const tap = (intent: string) => {
-    setSeed(intent);
-    setOpen(true);
-  };
+  const tap = (intent: string) => { setSeed(intent); setOpen(true); };
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
@@ -27,23 +23,14 @@ export default function Page() {
           <a>Leasing</a>
           <a>Contact</a>
         </nav>
-        <Link href="/booking" className="bg-brandBlue text-white px-4 py-2 rounded-md">
-          Book a Flight
-        </Link>
+        <Link href="/booking" className="bg-brandBlue text-white px-4 py-2 rounded-md">Book a Flight</Link>
       </header>
 
       <section className="flex flex-col items-center text-center py-24 px-8 bg-[url('https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=1400&q=60')] bg-cover bg-center text-white">
         <div className="bg-black/40 p-10 rounded-2xl">
           <h2 className="text-4xl font-bold mb-4">Your Journey, Elevated</h2>
-          <p className="text-lg mb-8 max-w-2xl mx-auto">
-            Experience the future of business aviation with EAN’s Smart Journey ID — powered by Descasio & AWS.
-          </p>
-          <Link
-            href="/booking"
-            className="inline-block bg-brandAmber text-black font-semibold px-8 py-4 rounded-full hover:opacity-90"
-          >
-            Start Your Journey
-          </Link>
+          <p className="text-lg mb-8 max-w-2xl mx-auto">Experience the future of business aviation with EAN’s Smart Journey ID — powered by Descasio & AWS.</p>
+          <Link href="/booking" className="inline-block bg-brandAmber text-black font-semibold px-8 py-4 rounded-full hover:opacity-90">Start Your Journey</Link>
         </div>
       </section>
 
@@ -71,49 +58,18 @@ export default function Page() {
             <Bot className="text-brandBlue mx-auto mb-3" size={36} />
             <h4 className="text-brandBlue font-semibold mb-2">AI Concierge Assistant</h4>
             <p className="text-gray-600 text-sm mb-4">One-tap actions to demonstrate the Smart Journey.</p>
-
-            {/* Quick action chips */}
             <div className="flex flex-wrap gap-2 justify-center mb-4">
-              <button
-                onClick={() => tap("Generate lounge access QR")}
-                className="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
-              >
-                Generate QR
-              </button>
-              <button
-                onClick={() => tap("Request chauffeur pickup")}
-                className="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
-              >
-                Request Chauffeur
-              </button>
-              <button
-                onClick={() => tap("Send invoice payment link")}
-                className="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
-              >
-                Send Invoice Link
-              </button>
-              <button
-                onClick={() => tap("Update catering preferences to steak medium and sparkling water")}
-                className="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
-              >
-                Catering: Steak
-              </button>
-              <Link href="/booking" className="px-3 py-1 rounded-full text-sm bg-amber-200 text-amber-900">
-                Open Dashboard
-              </Link>
+              <button onClick={() => tap("Generate lounge access QR")} className="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">Generate QR</button>
+              <button onClick={() => tap("Request chauffeur pickup")} className="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">Request Chauffeur</button>
+              <button onClick={() => tap("Send invoice payment link")} className="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">Send Invoice Link</button>
+              <button onClick={() => tap("Update catering preferences to steak medium and sparkling water")} className="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">Catering: Steak</button>
+              <Link href="/booking" className="px-3 py-1 rounded-full text-sm bg-amber-200 text-amber-900">Open Dashboard</Link>
             </div>
-
-            <button
-              onClick={() => setOpen(true)}
-              className="bg-brandBlue text-white px-6 py-2 rounded-full inline-block"
-            >
-              Chat with Concierge
-            </button>
+            <button onClick={() => setOpen(true)} className="bg-brandBlue text-white px-6 py-2 rounded-full inline-block">Chat with Concierge</button>
           </div>
         </div>
       </section>
 
-      {/* Concierge modal (seeded intent supported) */}
       <ChatModal open={open} onClose={() => setOpen(false)} seed={seed} />
 
       <footer className="bg-brandBlue text-white py-10 text-center text-sm">
@@ -122,3 +78,4 @@ export default function Page() {
     </motion.div>
   );
 }
+EOF
